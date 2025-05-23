@@ -1,4 +1,3 @@
-// Обновлённый массив персонажей с морской тематикой
 const characters = [
     {
         name: 'Малион',
@@ -177,24 +176,30 @@ const characters = [
     },
 ];
 
-// Функция для создания карточки персонажа
 function createCharacterCard(character) {
-    const card = document.createElement('div');
-    card.className = 'character-card';
+    const card = document.createElement('a');
+    card.className = 'character-card-link';
+
+    // Транслитерация кириллицы → латиница
+    const filename = character.name
+        .toLowerCase()
+        .replace(/[а-яё]/g, m => {
+            const ru = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+            const en = 'abvgdeejzijklmnoprstufhzcss_y_eua';
+            return en[ru.indexOf(m)] || '-';
+        });
+
+    card.href = `characters/${filename}.html`;
 
     card.innerHTML = `
-    <div class="card-image-container">
-      <img src="images/${character.image}" alt="${character.name}" loading="lazy">
-      <span class="character-type">${character.type}</span>
-    </div>
-    <div class="card-content">
-      <h3>${character.name}</h3>
-      <p class="character-description">${character.description}</p>
-      <div class="character-skills">
-        <h4><i class="fas fa-star"></i> Характеристики:</h4>
-        <ul>
-          ${character.skills.map(skill => `<li>${skill}</li>`).join('')}
-        </ul>
+    <div class="character-card">
+      <div class="card-image-container">
+        <img src="images/${character.image}" alt="${character.name}" loading="lazy">
+        <span class="character-type">${character.type}</span>
+      </div>
+      <div class="card-content">
+        <h3>${character.name}</h3>
+        <p class="character-description">${character.description}</p>
       </div>
     </div>
   `;
@@ -202,62 +207,59 @@ function createCharacterCard(character) {
     return card;
 }
 
-// Функция рендеринга галереи
 function renderGallery(data) {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = '';
 
     if (data.length === 0) {
         gallery.innerHTML = `
-      <div class="no-results">
-        <i class="fas fa-search"></i>
-        <p>Ничего не найдено в морских глубинах...</p>
-      </div>
-    `;
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <p>Ничего не найдено в морских глубинах...</p>
+            </div>
+        `;
         return;
     }
 
-    data.forEach(character => {
+    const fragment = document.createDocumentFragment();
+    data.forEach((character, index) => {
         const card = createCharacterCard(character);
-        card.classList.add('search-result'); // Добавляем класс для поиска
-        gallery.appendChild(card);
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        fragment.appendChild(card);
+
+        // Анимация появления
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        }, 100 * index);
     });
+
+    gallery.appendChild(fragment);
 }
 
 // Поиск персонажей
 document.getElementById('search').addEventListener('input', (e) => {
     const value = e.target.value.toLowerCase().trim();
-
-    if (value === '') {
-        renderGallery(characters);
-        return;
-    }
-
     const filtered = characters.filter(c =>
         c.name.toLowerCase().includes(value) ||
         (c.description && c.description.toLowerCase().includes(value)) ||
         (c.type && c.type.toLowerCase().includes(value)) ||
         (c.skills && c.skills.some(skill => skill.toLowerCase().includes(value)))
     );
-
     renderGallery(filtered);
 });
 
 // Сортировка по алфавиту
 let isSorted = false;
-
 document.getElementById('sortBtn').addEventListener('click', () => {
-    // Очищаем поиск
-    document.getElementById('search').value = '';
-
     const sorted = [...characters].sort((a, b) =>
         isSorted ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)
     );
-
     isSorted = !isSorted;
     renderGallery(sorted);
 
-    // Обновляем иконку
     const icon = document.querySelector('#sortBtn i');
     icon.className = isSorted ? 'fas fa-sort-alpha-up' : 'fas fa-sort-alpha-down';
 });
@@ -265,30 +267,8 @@ document.getElementById('sortBtn').addEventListener('click', () => {
 // Случайный персонаж
 document.getElementById('randomBtn').addEventListener('click', () => {
     const randomIndex = Math.floor(Math.random() * characters.length);
-    const randomCharacter = characters[randomIndex];
-
-    // Очищаем поиск
-    document.getElementById('search').value = '';
-
-    // Показываем только одного персонажа
-    renderGallery([randomCharacter]);
+    renderGallery([characters[randomIndex]]);
 });
 
-// Анимация при загрузке
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        renderGallery(characters);
-
-        // Анимация появления элементов
-        const cards = document.querySelectorAll('.character-card');
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, 100 * index);
-        });
-    }, 300);
-});
-
-// Инициализация галереи
-renderGallery(characters);
+// Инициализация галереи (только один раз!)
+renderGallery(characters);;

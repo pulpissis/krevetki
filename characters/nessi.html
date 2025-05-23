@@ -1,0 +1,347 @@
+﻿<<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Несси - Креветки шоу</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+
+        .character-header {
+            background: white;
+            width: 85%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            position: relative;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .character-canvas {
+            background-color: var(--card-bg);
+            border-radius: 24px 24px 0 0;
+            padding: 5rem 2rem 2rem;
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+            min-height: 60vh;
+        }
+
+        .character-portrait {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            object-fit: cover;
+            margin: -40px auto 0; /* Уменьшил отрицательный margin */
+            display: block;
+            box-shadow: var(--shadow);
+            background: white;
+            position: relative;
+            z-index: 30;
+        }
+
+        .character-header h1 {
+            color: var(--primary);
+            margin: 1.5rem 0 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .character-type {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+            .back-button:hover {
+                background: var(--accent);
+                transform: translateX(-3px);
+            }
+
+        .full-reference {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            margin: 2rem 0;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            height: 200px;
+        }
+
+            .gallery-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s;
+            }
+
+            .gallery-item:hover img {
+                transform: scale(1.05);
+            }
+
+        .fish-icon {
+            color: var(--accent);
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
+
+        .character-stats li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .fish-icon {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+            color: var(--accent);
+            font-style: normal; /* Убирает курсив, если был */
+        }
+
+        /* Если Font Awesome загрузится, заменяем эмодзи на иконки */
+        .fa-fish + strong {
+            display: none;
+        }
+
+        .character-stats li::before {
+            content: "" !important; /* Убиваем все псевдоэлементы */
+            display: none !important;
+        }
+
+        .fish-icon {
+            display: inline-block;
+            margin-right: 10px;
+            color: var(--accent);
+            font-style: normal;
+            font-family: Arial, sans-serif; /* Убираем зависящие шрифты */
+        }
+        /* Стили модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            display: block;
+            max-width: 90%;
+            max-height: 80%;
+            margin: 5% auto;
+            animation: zoomIn 0.3s;
+        }
+
+        #caption {
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .close:hover {
+                color: var(--accent);
+            }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .full-reference {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+            .full-reference:hover {
+                transform: scale(1.02);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+    </style>
+</head>
+<body>
+    <div class="waves"></div>
+
+    <!-- Компактная шапка-карточка -->
+    <div class="character-header">
+        <a href="../index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1>Несси</h1>
+        <p class="character-type">Сирена (ж)</p>
+    </div>
+
+    <!-- Аватар поверх шапки -->
+    <img src="../images/nessi.jpg" alt="Несси" class="character-portrait">
+
+    <!-- Основной контент -->
+    <main class="character-canvas">
+        <!-- Блок характеристик -->
+        <section class="character-section">
+            <h2><i class="fas fa-fish"></i> Характеристики</h2>
+            <ul class="character-stats">
+                <!-- Рост -->
+                <li>
+                    <svg class="fish-icon" width="18" height="18" viewBox="0 0 576 512" fill="#023e8a">
+                        <path d="M275.2 38.4c-10.6-8-25-8.5-36.3-1.5S222 57.3 224.6 70.3l9.7 48.6c-19.4 9-36.9 19.9-52.4 31.5c-15.3 11.5-29 23.9-40.7 36.3L48.1 132.4c-12.5-7.3-28.4-5.3-38.6 4.9S-3 163.3 4.2 175.9L50 256 4.2 336.1c-7.2 12.6-5 28.4 5.3 38.6s26.1 12.2 38.6 4.9l93.1-54.3c11.8 12.3 25.4 24.8 40.7 36.3c15.5 11.6 33 22.5 52.4 31.5l-9.7 48.6c-2.6 13 3.1 26.3 14.3 33.3s25.6 6.5 36.3-1.5l77.6-58.2c54.9-4 101.5-27 137.2-53.8c39.2-29.4 67.2-64.7 81.6-89.5c5.8-9.9 5.8-22.2 0-32.1c-14.4-24.8-42.5-60.1-81.6-89.5c-35.8-26.8-82.3-49.8-137.2-53.8L275.2 38.4zM384 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" />
+                    </svg>
+                    <strong>Рост:</strong> 4 метра
+                </li>
+
+                <!-- Возраст -->
+                <li>
+                    <svg class="fish-icon" width="18" height="18" viewBox="0 0 576 512" fill="#023e8a">
+                        <path d="M275.2 38.4c-10.6-8-25-8.5-36.3-1.5S222 57.3 224.6 70.3l9.7 48.6c-19.4 9-36.9 19.9-52.4 31.5c-15.3 11.5-29 23.9-40.7 36.3L48.1 132.4c-12.5-7.3-28.4-5.3-38.6 4.9S-3 163.3 4.2 175.9L50 256 4.2 336.1c-7.2 12.6-5 28.4 5.3 38.6s26.1 12.2 38.6 4.9l93.1-54.3c11.8 12.3 25.4 24.8 40.7 36.3c15.5 11.6 33 22.5 52.4 31.5l-9.7 48.6c-2.6 13 3.1 26.3 14.3 33.3s25.6 6.5 36.3-1.5l77.6-58.2c54.9-4 101.5-27 137.2-53.8c39.2-29.4 67.2-64.7 81.6-89.5c5.8-9.9 5.8-22.2 0-32.1c-14.4-24.8-42.5-60.1-81.6-89.5c-35.8-26.8-82.3-49.8-137.2-53.8L275.2 38.4zM384 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" />
+                    </svg>
+                    <strong>Возраст: </strong> 23 года
+                </li>
+
+                <!-- Романтический интерес -->
+                <li>
+                    <svg class="fish-icon" width="18" height="18" viewBox="0 0 576 512" fill="#023e8a">
+                        <path d="M275.2 38.4c-10.6-8-25-8.5-36.3-1.5S222 57.3 224.6 70.3l9.7 48.6c-19.4 9-36.9 19.9-52.4 31.5c-15.3 11.5-29 23.9-40.7 36.3L48.1 132.4c-12.5-7.3-28.4-5.3-38.6 4.9S-3 163.3 4.2 175.9L50 256 4.2 336.1c-7.2 12.6-5 28.4 5.3 38.6s26.1 12.2 38.6 4.9l93.1-54.3c11.8 12.3 25.4 24.8 40.7 36.3c15.5 11.6 33 22.5 52.4 31.5l-9.7 48.6c-2.6 13 3.1 26.3 14.3 33.3s25.6 6.5 36.3-1.5l77.6-58.2c54.9-4 101.5-27 137.2-53.8c39.2-29.4 67.2-64.7 81.6-89.5c5.8-9.9 5.8-22.2 0-32.1c-14.4-24.8-42.5-60.1-81.6-89.5c-35.8-26.8-82.3-49.8-137.2-53.8L275.2 38.4zM384 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z" />
+                    </svg>
+                    <strong>Романтический интерес: </strong> ...
+                </li>
+            </ul>
+        </section>
+
+        <!-- Полный референс -->
+        <img src="../characters/nessi1.jpg" alt="Полный референс" class="full-reference">
+
+        <!-- История и описание -->
+        <section class="character-section">
+            <h2><i class="fas fa-book-open"></i> История</h2>
+            <p>..................................................................(заполнить)..................................................................</p>
+        </section>
+
+        <!-- Галерея -->
+        <section class="character-section">
+            <h2><i class="fas fa-images"></i> Галерея</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="../images/malion-ref1.jpg" alt="Вариант 1">
+                </div>
+                <div class="gallery-item">
+                    <img src="../images/malion-ref2.jpg" alt="Вариант 2">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../script.js"></script>
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+    <!-- Модальное окно для изображений -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="caption"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            const captionText = document.getElementById("caption");
+
+            // Обработчики для ВСЕХ изображений (галерея + полный референс)
+            document.querySelectorAll('.gallery-item img, .full-reference').forEach(img => {
+                img.style.cursor = 'pointer'; // Добавляем курсор-указатель
+                img.onclick = function () {
+                    modal.style.display = "block";
+                    modalImg.src = this.src;
+                    captionText.innerHTML = this.alt;
+                }
+            });
+
+            // Закрытие
+            document.querySelector('.close').onclick = function () {
+                modal.style.display = "none";
+            }
+
+            modal.onclick = function (event) {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
